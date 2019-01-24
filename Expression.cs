@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MathExpressionParser
 {
@@ -35,10 +31,22 @@ namespace MathExpressionParser
 				case Operator.division:
 					return firstOperand != null && secondOperand != null;
 
+				case Operator.modulo:
+					return firstOperand != null && secondOperand != null;
+
 				case Operator.potencies:
 					return firstOperand != null && secondOperand != null;
 
 				case Operator.sqrt:
+					return firstOperand != null || secondOperand != null;
+
+				case Operator.sin:
+					return firstOperand != null || secondOperand != null;
+
+				case Operator.cos:
+					return firstOperand != null || secondOperand != null;
+
+				case Operator.tan:
 					return firstOperand != null || secondOperand != null;
 
 				default:
@@ -62,8 +70,23 @@ namespace MathExpressionParser
 				case Operator.division:
 					return firstOperand / secondOperand;
 
+				case Operator.modulo:
+					return firstOperand % secondOperand;
+
 				case Operator.potencies:
 					return (float)Math.Pow((double)firstOperand, (double)secondOperand);
+
+				case Operator.sqrt:
+					return (float)Math.Sqrt((double)firstOperand);
+
+				case Operator.sin:
+					return (float)Math.Sin((double)firstOperand);
+
+				case Operator.cos:
+					return (float)Math.Cos((double)firstOperand);
+
+				case Operator.tan:
+					return (float)Math.Tan((double)firstOperand);
 
 				default:
 					throw new ArgumentException();
@@ -95,11 +118,24 @@ namespace MathExpressionParser
 				case Operator.division:
 					return firstOperand / secondOperand;
 
+				case Operator.modulo:
+					return firstOperand % secondOperand;
+
 				case Operator.potencies:
 					return (float)Math.Pow((double)firstOperand, (double)secondOperand);
 
 				case Operator.sqrt:
 					return (float)Math.Sqrt((double)firstOperand);
+
+				case Operator.sin:
+
+					return (float)Math.Sin((double)firstOperand);
+				case Operator.cos:
+
+					return (float)Math.Cos((double)firstOperand);
+				case Operator.tan:
+
+					return (float)Math.Tan((double)firstOperand);
 
 				default:
 					throw new ArgumentException();
@@ -153,23 +189,40 @@ namespace MathExpressionParser
 				case Operator.addition:
 					operatorString = "+";
 					break;
+
 				case Operator.subtraction:
 					operatorString = "-";
 					break;
+
 				case Operator.multiplication:
 					operatorString = "*";
 					break;
+
 				case Operator.division:
 					operatorString = "/";
 					break;
+
+				case Operator.modulo:
+					operatorString = "%";
+					break;
+
 				case Operator.potencies:
 					operatorString = "^";
 					break;
+
 				case Operator.sqrt:
 					return $"sqrt({firstOperand})";
 
-				
-				case Operator.none:
+
+				case Operator.sin:
+					return $"sin({firstOperand})";
+
+				case Operator.cos:
+					return $"cos({firstOperand})";
+
+				case Operator.tan:
+					return $"tan({firstOperand})";
+
 				default:
 					throw new Exception();
 			}

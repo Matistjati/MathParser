@@ -1,31 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MathExpressionParser
 {
 	enum Operator
 	{
-		badValue =       0,
-		none =           1,
-		addition =       2,
-		subtraction =    3,
+		badValue = 0,
+		none = 1,
+		addition = 2,
+		subtraction = 3,
 		multiplication = 4,
-		division =       5,
-		potencies =      6,
-		sqrt =           7,
+		division = 5,
+		modulo = 6,
+		potencies = 7,
+		sqrt = 8,
+		sin = 9,
+		cos = 10,
+		tan = 11,
 	}
 
 	class Program
 	{
-		static readonly int[] operatorMap = 
+		static readonly int[] operatorMap =
 		{
 			-1, -1, // badValue and none
 			0, 0,   // Addition and subtraction
 			1, 1,   // Multiplication and division
-			2, -1   // Potencies and sqrt
+			1,      // Modulo
+			2, -1,  // Potencies and sqrt
+			-1, -1, // sin and cos
+			-1,     // tan
 		};
 
 		static void Main()
@@ -71,23 +76,71 @@ namespace MathExpressionParser
 						currentOperator = OperatorCheck(currentOperator, Operator.division);
 						break;
 
+					case '%':
+						currentOperator = OperatorCheck(currentOperator, Operator.modulo);
+						break;
+
 					case '^':
 						currentOperator = OperatorCheck(currentOperator, Operator.potencies);
 						break;
 
 					case 's':
 					case 'S':
-						Operator op = SqrtCheck(ref i, expression);
-						if (op != Operator.badValue)
+						Operator sOperator = NamedOperatorCheck(ref i, expression, "sqrt");
+						if (sOperator == Operator.badValue)
+						{
+							sOperator = NamedOperatorCheck(ref i, expression, "sin");
+							if (sOperator == Operator.badValue)
+							{
+								break;
+							}
+						}
+
+						if (sOperator != Operator.badValue)
 						{
 							expressions.Add(new Expression
 							{
-								operatorType = Operator.sqrt,
+								operatorType = sOperator,
 								parenthesisLevel = parenthesisLevel,
 								firstOperand = null,
 								secondOperand = null
 							});
 						}
+
+						break;
+
+					case 'c':
+					case 'C':
+						Operator cOperator = NamedOperatorCheck(ref i, expression, "cos");
+
+						if (cOperator != Operator.badValue)
+						{
+							expressions.Add(new Expression
+							{
+								operatorType = cOperator,
+								parenthesisLevel = parenthesisLevel,
+								firstOperand = null,
+								secondOperand = null
+							});
+						}
+
+						break;
+
+					case 't':
+					case 'T':
+						Operator tOperator = NamedOperatorCheck(ref i, expression, "tan");
+
+						if (tOperator != Operator.badValue)
+						{
+							expressions.Add(new Expression
+							{
+								operatorType = tOperator,
+								parenthesisLevel = parenthesisLevel,
+								firstOperand = null,
+								secondOperand = null
+							});
+						}
+
 						break;
 
 					case '0':
@@ -122,7 +175,7 @@ namespace MathExpressionParser
 							currentNumber = 0;
 							currentOperator = Operator.none;
 						}
- 						else if (currentNumber == 0 && currentOperator != Operator.none)
+						else if (currentNumber == 0 && currentOperator != Operator.none)
 						{
 							expressions.Add(new Expression
 							{
@@ -165,12 +218,12 @@ namespace MathExpressionParser
 							if (other.firstOperand is null)
 							{
 								other.firstOperand = current.firstOperand;
-								current.secondOperand = null; 
+								current.secondOperand = null;
 							}
 							else if (other.secondOperand is null)
 							{
 								other.secondOperand = current.secondOperand;
-								current.secondOperand = null; 
+								current.secondOperand = null;
 							}
 						}
 					}
@@ -195,7 +248,10 @@ namespace MathExpressionParser
 				}
 				else
 				{
-					if (current.operatorType == Operator.sqrt)
+					if (current.operatorType == Operator.sqrt ||
+						current.operatorType == Operator.sin ||
+						current.operatorType == Operator.cos ||
+						current.operatorType == Operator.tan)
 					{
 						outPut = (float)current.PerformOperation(outPut, true);
 					}
@@ -251,23 +307,29 @@ namespace MathExpressionParser
 			return float.Parse(number);
 		}
 
-		private static Operator SqrtCheck(ref int index, string expression)
+		static readonly Dictionary<string, Operator> stringToOperator = new Dictionary<string, Operator>
 		{
-			if (expression[index] != 's' && expression[index] != 'S')
-				return Operator.badValue;
+			{"SQRT", Operator.sqrt },
+			{"SIN", Operator.sin },
+			{"COS", Operator.cos },
+			{"TAN", Operator.tan },
+		};
 
-			if (expression[index + 1] != 'q' && expression[index] != 'Q')
-				return Operator.badValue;
+		static Operator NamedOperatorCheck(ref int index, string expression, string operatorName)
+		{
+			operatorName = operatorName.ToUpper();
 
-			if (expression[index + 2] != 'r' && expression[index] != 'R')
-				return Operator.badValue;
+			for (int i = 0; i < operatorName.Length; i++)
+			{
+				if (char.ToUpper(expression[index + i]) != operatorName[i])
+				{
+					return Operator.badValue;
+				}
+			}
 
-			if (expression[index + 3] != 't' && expression[index] != 'T')
-				return Operator.badValue;
 
-			
-			index += 3;
-			return Operator.sqrt;
+			index += operatorName.Length;
+			return stringToOperator[operatorName];
 		}
 
 		static float GetFloat(ref int index, string expression)
@@ -365,7 +427,7 @@ namespace MathExpressionParser
 			}
 		}
 
-		
+
 
 		static void Error(string message)
 		{
