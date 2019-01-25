@@ -181,8 +181,8 @@ namespace MathExpressionParser
 							{
 								operatorType = currentOperator,
 								parenthesisLevel = parenthesisLevel,
-								firstOperand = localnumber,
-								secondOperand = null
+								firstOperand = null,
+								secondOperand = localnumber
 							});
 
 							currentNumber = 0;
@@ -217,7 +217,7 @@ namespace MathExpressionParser
 						{
 							if (other.firstOperand is null)
 							{
-								other.firstOperand = current.firstOperand;
+								other.firstOperand = current.secondOperand;
 								current.secondOperand = null;
 							}
 							else if (other.secondOperand is null)
